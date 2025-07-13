@@ -1,5 +1,5 @@
 {
-  "name": "aidf-4-back-end",
+  "name": "solar-panel-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/index.ts",
