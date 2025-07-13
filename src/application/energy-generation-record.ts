@@ -11,6 +11,40 @@ import {
   GetEnergyRecordsByDateRangeDTO
 } from "../domain/dtos/energy-generation-record";
 
+// Type definitions for internal use
+interface EnergyRecordData {
+  solarUnitId: string | mongoose.Types.ObjectId;
+  energyProduced: number;
+  intervalHours: number;
+  timestamp?: Date;
+}
+
+interface DateRangeFilter {
+  timestamp: {
+    $gte: Date;
+    $lte: Date;
+  };
+  solarUnitId?: string | mongoose.Types.ObjectId;
+}
+
+interface GroupByDaily {
+  year: { $year: string };
+  month: { $month: string };
+  day: { $dayOfMonth: string };
+}
+
+interface GroupByWeekly {
+  year: { $year: string };
+  week: { $week: string };
+}
+
+interface GroupByMonthly {
+  year: { $year: string };
+  month: { $month: string };
+}
+
+type GroupBy = GroupByDaily | GroupByWeekly | GroupByMonthly;
+
 export const createEnergyGenerationRecord = async (
   req: Request,
   res: Response,
@@ -31,7 +65,7 @@ export const createEnergyGenerationRecord = async (
       throw new NotFoundError("Solar unit not found");
     }
 
-    const energyRecordData: any = {
+    const energyRecordData: EnergyRecordData = {
       solarUnitId: recordData.solarUnitId,
       energyProduced: recordData.energyProduced,
       intervalHours: recordData.intervalHours || 2,
@@ -98,7 +132,7 @@ export const getEnergyRecordsByDateRange = async (
 
     const { startDate, endDate, solarUnitId } = validationResult.data;
 
-    const filter: any = {
+    const filter: DateRangeFilter = {
       timestamp: {
         $gte: startDate,
         $lte: endDate,
@@ -226,7 +260,7 @@ export const getEnergyAnalytics = async (
     const { period = 'daily' } = req.query; // daily, weekly, monthly
 
     // Define date grouping based on period
-    let groupBy: any;
+    let groupBy: GroupBy;
     switch (period) {
       case 'daily':
         groupBy = {
