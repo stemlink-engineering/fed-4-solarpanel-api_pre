@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const solarUnitSchema = new mongoose.Schema({
   userId: {
     type: String,
-    required: true,
+    // removed required: true to make it optional
   },
   serialNumber: {
     type: String,
@@ -19,8 +19,8 @@ const solarUnitSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["ACTIVE", "INACTIVE", "MAINTENANCE", "FAULT"],
-    default: "INACTIVE",
+    enum: ["ACTIVE", "INACTIVE", "MAINTENANCE", "FAULT", "UNASSIGNED"],
+    default: "UNASSIGNED", // Default status for units not assigned to users
   },
 });
 
