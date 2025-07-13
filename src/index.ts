@@ -13,7 +13,7 @@ const app = express();
 
 app.use(clerkMiddleware());
 // Middleware to parse JSON data in the request body
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+app.use(cors({ origin: process.env.BACKEND_URL }));
 
 app.use(express.json());
 
@@ -24,5 +24,5 @@ app.use(globalErrorHandlingMiddleware);
 
 // Define the port to run the server
 connectDB();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
