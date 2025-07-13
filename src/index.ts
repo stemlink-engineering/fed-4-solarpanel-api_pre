@@ -5,6 +5,7 @@ import connectDB from "./infrastructure/db";
 import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
 import solarUnitsRouter from "./api/solar-unit";
+import energyGenerationRecordsRouter from "./api/energy-generation-record";
 import globalErrorHandlingMiddleware from "./api/middlewares/global-error-handling-middleware";
 
 // Create an Express instance
@@ -17,6 +18,7 @@ app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(express.json());
 
 app.use("/api/solar-units", solarUnitsRouter);
+app.use("/api/energy-records", energyGenerationRecordsRouter);
 
 app.use(globalErrorHandlingMiddleware);
 
