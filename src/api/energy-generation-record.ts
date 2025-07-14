@@ -38,7 +38,7 @@ router.get("/solar-unit/:solarUnitId/total", isBackendAuthenticated, getTotalEne
 // Get energy analytics (daily/weekly/monthly aggregation)
 router.get("/solar-unit/:solarUnitId/analytics", isBackendAuthenticated, getEnergyAnalytics);
 
-// Get energy records by date range
-router.get("/date-range", isBackendAuthenticated, getEnergyRecordsByDateRange);
+// Get energy records by date range for a specific solar unit
+router.get("/solar-unit/:solarUnitId/date-range", isBackendAuthenticated, getEnergyRecordsByDateRange);
 
 export default router; 

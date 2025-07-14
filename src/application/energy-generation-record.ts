@@ -24,7 +24,7 @@ interface DateRangeFilter {
     $gte: Date;
     $lte: Date;
   };
-  solarUnitId?: string | mongoose.Types.ObjectId;
+  solarUnitId: string | mongoose.Types.ObjectId;
 }
 
 interface GroupByDaily {
@@ -124,24 +124,28 @@ export const getEnergyRecordsByDateRange = async (
   next: NextFunction
 ) => {
   try {
+    const { solarUnitId } = req.params;
     const validationResult = GetEnergyRecordsByDateRangeDTO.safeParse(req.query);
 
     if (!validationResult.success) {
       throw new ValidationError(validationResult.error.message);
     }
 
-    const { startDate, endDate, solarUnitId } = validationResult.data;
+    const { startDate, endDate } = validationResult.data;
+
+    // Verify solar unit exists
+    const solarUnit = await SolarUnit.findById(solarUnitId);
+    if (!solarUnit) {
+      throw new NotFoundError("Solar unit not found");
+    }
 
     const filter: DateRangeFilter = {
       timestamp: {
         $gte: startDate,
         $lte: endDate,
       },
+      solarUnitId: solarUnitId,
     };
-
-    if (solarUnitId) {
-      filter.solarUnitId = solarUnitId;
-    }
 
     const records = await EnergyGenerationRecord.find(filter)
       .sort({ timestamp: -1 })
