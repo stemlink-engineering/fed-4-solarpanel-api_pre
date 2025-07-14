@@ -7,8 +7,6 @@ import {
   updateEnergyGenerationRecord,
   deleteEnergyGenerationRecord,
   getLatestEnergyRecord,
-  getEnergyAnalytics,
-  getTotalEnergyProduced,
 } from "../application/energy-generation-record";
 import { isBackendAuthenticated } from "./middlewares/authentication-middleware";
 
@@ -32,11 +30,7 @@ router.get("/solar-unit/:solarUnitId", isBackendAuthenticated, getEnergyRecordsB
 // Get latest energy record for a solar unit
 router.get("/solar-unit/:solarUnitId/latest", isBackendAuthenticated, getLatestEnergyRecord);
 
-// Get total energy produced for a solar unit
-router.get("/solar-unit/:solarUnitId/total", isBackendAuthenticated, getTotalEnergyProduced);
 
-// Get energy analytics (daily/weekly/monthly aggregation)
-router.get("/solar-unit/:solarUnitId/analytics", isBackendAuthenticated, getEnergyAnalytics);
 
 // Get energy records by date range for a specific solar unit
 router.get("/solar-unit/:solarUnitId/date-range", isBackendAuthenticated, getEnergyRecordsByDateRange);

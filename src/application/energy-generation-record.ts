@@ -22,28 +22,12 @@ interface EnergyRecordData {
 interface DateRangeFilter {
   timestamp: {
     $gte: Date;
-    $lte: Date;
+    $lte?: Date;
   };
   solarUnitId: string | mongoose.Types.ObjectId;
 }
 
-interface GroupByDaily {
-  year: { $year: string };
-  month: { $month: string };
-  day: { $dayOfMonth: string };
-}
 
-interface GroupByWeekly {
-  year: { $year: string };
-  week: { $week: string };
-}
-
-interface GroupByMonthly {
-  year: { $year: string };
-  month: { $month: string };
-}
-
-type GroupBy = GroupByDaily | GroupByWeekly | GroupByMonthly;
 
 export const createEnergyGenerationRecord = async (
   req: Request,
@@ -142,7 +126,8 @@ export const getEnergyRecordsByDateRange = async (
     const filter: DateRangeFilter = {
       timestamp: {
         $gte: startDate,
-        $lte: endDate,
+        // Only add $lte if endDate is provided
+        ...(endDate && { $lte: endDate }),
       },
       solarUnitId: solarUnitId,
     };
@@ -254,96 +239,4 @@ export const getLatestEnergyRecord = async (
   }
 };
 
-export const getEnergyAnalytics = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { solarUnitId } = req.params;
-    const { period = 'daily' } = req.query; // daily, weekly, monthly
-
-    // Define date grouping based on period
-    let groupBy: GroupBy;
-    switch (period) {
-      case 'daily':
-        groupBy = {
-          year: { $year: '$timestamp' },
-          month: { $month: '$timestamp' },
-          day: { $dayOfMonth: '$timestamp' },
-        };
-        break;
-      case 'weekly':
-        groupBy = {
-          year: { $year: '$timestamp' },
-          week: { $week: '$timestamp' },
-        };
-        break;
-      case 'monthly':
-        groupBy = {
-          year: { $year: '$timestamp' },
-          month: { $month: '$timestamp' },
-        };
-        break;
-      default:
-        throw new ValidationError("Invalid period. Use 'daily', 'weekly', or 'monthly'");
-    }
-
-    const analytics = await EnergyGenerationRecord.aggregate([
-      { $match: { solarUnitId: new mongoose.Types.ObjectId(solarUnitId) } },
-      {
-        $group: {
-          _id: groupBy,
-          totalEnergyProduced: { $sum: '$energyProduced' },
-          recordCount: { $sum: 1 },
-          maxEnergyProduced: { $max: '$energyProduced' },
-          minEnergyProduced: { $min: '$energyProduced' },
-          averageEnergyProduced: { $avg: '$energyProduced' },
-        },
-      },
-      { $sort: { '_id.year': -1, '_id.month': -1, '_id.day': -1, '_id.week': -1 } },
-      { $limit: 30 }, // Limit to last 30 periods
-    ]);
-
-    res.status(200).json({
-      period,
-      analytics,
-    });
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getTotalEnergyProduced = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { solarUnitId } = req.params;
-
-    const totalStats = await EnergyGenerationRecord.aggregate([
-      { $match: { solarUnitId: new mongoose.Types.ObjectId(solarUnitId) } },
-      {
-        $group: {
-          _id: null,
-          totalEnergyProduced: { $sum: '$energyProduced' },
-          totalRecords: { $sum: 1 },
-          averageEnergyProduced: { $avg: '$energyProduced' },
-          firstRecord: { $min: '$timestamp' },
-          lastRecord: { $max: '$timestamp' },
-        },
-      },
-    ]);
-
-    if (totalStats.length === 0) {
-      throw new NotFoundError("No energy generation records found for this solar unit");
-    }
-
-    res.status(200).json(totalStats[0]);
-    return;
-  } catch (error) {
-    next(error);
-  }
-}; 
+ 
