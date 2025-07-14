@@ -30,8 +30,6 @@ router.get("/solar-unit/:solarUnitId", isBackendAuthenticated, getEnergyRecordsB
 // Get latest energy record for a solar unit
 router.get("/solar-unit/:solarUnitId/latest", isBackendAuthenticated, getLatestEnergyRecord);
 
-
-
 // Get energy records by date range for a specific solar unit
 router.get("/solar-unit/:solarUnitId/date-range", isBackendAuthenticated, getEnergyRecordsByDateRange);
 

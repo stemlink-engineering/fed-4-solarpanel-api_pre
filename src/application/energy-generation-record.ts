@@ -133,7 +133,7 @@ export const getEnergyRecordsByDateRange = async (
     };
 
     const records = await EnergyGenerationRecord.find(filter)
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: 1 })
       .populate('solarUnitId', 'serialNumber capacity');
 
     res.status(200).json(records);
